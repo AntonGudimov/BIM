@@ -5,11 +5,11 @@ class Logic:
     def __init__(self):
         self.__username = ""
         self.__password = ""
-        self.__speed_list = list()
+        self.__speed_dict = {"morning": list(), "afternoon": list(), "evening": list(), "night": list()}
         self.__start_time = 0
         self.__end_time = 0
-        self.__mean_speed = 0
-        self.__var_speed = 0
+        self.__mean_speed_dict = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
+        self.__var_speed_dict = {"morning": 0, "afternoon": 0, "evening": 0, "night": 0}
 
     @property
     def user_name(self):
@@ -20,8 +20,8 @@ class Logic:
         return self.__password
 
     @property
-    def speed_list(self):
-        return self.__speed_list
+    def speed_dict(self):
+        return self.__speed_dict
 
     @property
     def start_time(self):
@@ -32,12 +32,12 @@ class Logic:
         return self.__end_time
 
     @property
-    def mean_speed(self):
-        return self.__mean_speed
+    def mean_speed_dict(self):
+        return self.__mean_speed_dict
 
     @property
-    def var_speed(self):
-        return self.__var_speed
+    def var_speed_dict(self):
+        return self.__var_speed_dict
 
     @user_name.setter
     def user_name(self, user_name):
@@ -55,16 +55,14 @@ class Logic:
     def end_time(self, end_time):
         self.__end_time = end_time
 
-    @mean_speed.setter
-    def mean_speed(self, mean_speed):
-        self.__mean_speed = mean_speed
+    def add_speed(self, key, speed):
+        self.__speed_dict[key].append(speed)
 
-    @var_speed.setter
-    def var_speed(self, var_speed):
-        self.__var_speed = var_speed
+    def add_mean_speed(self, key, mean_speed):
+        self.__mean_speed_dict[key] = mean_speed
 
-    def add_speed(self, speed):
-        self.__speed_list.append(speed)
+    def add_var_speed(self, key, var_speed):
+        self.__var_speed_dict[key] = var_speed
 
     def examine_password_for_complexity(self):
         stats = PasswordStats(self.__password)

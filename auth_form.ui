@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>321</width>
-    <height>188</height>
+    <width>460</width>
+    <height>212</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,30 +17,64 @@
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <layout class="QFormLayout" name="formLayout">
+      <item row="4" column="0">
+       <widget class="QLabel" name="username_label">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Username</string>
+        </property>
+       </widget>
+      </item>
       <item row="4" column="1">
        <widget class="QLineEdit" name="username_line_edit"/>
       </item>
-      <item row="4" column="0">
-       <widget class="QLabel" name="username_label">
+      <item row="5" column="0">
+       <widget class="QLabel" name="password_label">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Username</string>
+         <string>Password</string>
         </property>
        </widget>
       </item>
       <item row="5" column="1">
        <widget class="QLineEdit" name="password_line_edit"/>
       </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="password_label">
-        <property name="text">
-         <string>Password</string>
-        </property>
-       </widget>
-      </item>
       <item row="6" column="0" colspan="2">
        <widget class="QPushButton" name="password_push_button">
         <property name="text">
          <string>OK</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2">
+       <widget class="QLabel" name="password_strength_label">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -53,7 +87,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>321</width>
+     <width>460</width>
      <height>23</height>
     </rect>
    </property>
