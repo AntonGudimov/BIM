@@ -1,7 +1,7 @@
 from AuthFormUI import Ui_MainWindow as AuthFormUI
 from PyQt5.QtWidgets import QMainWindow, QLineEdit
 from PyQt5 import QtGui
-from Logic import Logic
+from PasswordLogic import PasswordLogic
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +15,7 @@ def determine_day_time():
         return "morning"
     elif "12:00:00" <= curr_time < "18:00:00":
         return "afternoon"
-    elif "18:00:00" <= curr_time < "00:00:00":
+    else:
         return "evening"
 
 
@@ -23,19 +23,19 @@ class AuthForm(QMainWindow, AuthFormUI):
     def __init__(self):
         super(AuthForm, self).__init__()
         self.setupUi(self)
-        self.__password_logic = Logic()
+        self.__password_logic = PasswordLogic()
         self.password_line_edit.setEchoMode(QLineEdit.Password)
         self.password_line_edit.keyPressEvent = self.keyPressEvent
         self.password_push_button.clicked.connect(self.clicked_on_password_push_button)
         self.actionGet_stats.triggered.connect(self.get_stats)
+        self.password_strength_label.setVisible(False)
 
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
         QLineEdit.keyPressEvent(self.password_line_edit, a0)
         if self.__password_logic.user_name and self.__password_logic.password:
-            if not self.__password_logic.start_time:
-                self.__password_logic.start_time = time.time()
-            else:
-                self.__password_logic.end_time = time.time()
+            curr_time = time.time()
+            self.__password_logic.add_pressed_key(a0.text())
+            self.__password_logic.add_pressed_time(curr_time)
 
     def clicked_on_password_push_button(self):
         self.password_strength_label.clear()
@@ -44,6 +44,7 @@ class AuthForm(QMainWindow, AuthFormUI):
             if self.password_line_edit.text() == self.__password_logic.password:
                 day_time = determine_day_time()
                 self.__password_logic.add_speed(day_time, self.__password_logic.calculate_speed())
+                self.__password_logic.calculate_input_dynamic()
                 self.__password_logic.add_mean_speed(day_time, np.mean(self.__password_logic.speed_dict[day_time]))
                 self.__password_logic.add_var_speed(day_time, np.var(self.__password_logic.speed_dict[day_time]))
             else:
@@ -59,6 +60,8 @@ class AuthForm(QMainWindow, AuthFormUI):
                 self.password_strength_label.setVisible(True)
                 self.username_line_edit.setDisabled(True)
         self.password_line_edit.setText("")
+        self.__password_logic.clear_pressed_keys()
+        self.__password_logic.clear_pressed_times()
 
     def get_stats(self):
         for k, v in self.__password_logic.speed_dict.items():
@@ -69,3 +72,7 @@ class AuthForm(QMainWindow, AuthFormUI):
             plt.ylabel("speed of the entering the password")
             plt.xlabel("number of entering the password")
             plt.show()
+        arr = self.__password_logic.get_char_pairs_from_password()
+        plt.plot(arr, self.__password_logic.time_pairs)
+        plt.grid(True)
+        plt.show()
