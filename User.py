@@ -18,5 +18,3 @@ class User:
     @password.setter
     def password(self, password):
         self.__password = password
-
-

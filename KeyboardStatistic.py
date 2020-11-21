@@ -7,6 +7,8 @@ class KeyboardStatistic:
         self.__pressed_keys = list()
         self.__pressed_times = list()
         self.__key_overlay_count = 0
+        self.__key_overlay_count_2 = 0
+        self.__key_overlay_count_3 = 0
         self.__pressed_released_key_times = dict()
 
     @property
@@ -18,12 +20,28 @@ class KeyboardStatistic:
         return self.__key_overlay_count
 
     @property
+    def key_overlay_count_2(self):
+        return self.__key_overlay_count_2
+
+    @property
+    def key_overlay_count_3(self):
+        return self.__key_overlay_count_3
+
+    @property
     def pressed_released_key_times(self):
         return self.__pressed_released_key_times
 
     @key_overlay_count.setter
     def key_overlay_count(self, key_overlay_count):
         self.__key_overlay_count = key_overlay_count
+
+    @key_overlay_count_2.setter
+    def key_overlay_count_2(self, key_overlay_count_2):
+        self.__key_overlay_count_2 = key_overlay_count_2
+
+    @key_overlay_count_3.setter
+    def key_overlay_count_3(self, key_overlay_count_3):
+        self.__key_overlay_count_3 = key_overlay_count_3
 
     def add_speed(self, daytime, password):
         speed = len(password) / (self.__pressed_times[-1] - self.__pressed_times[0])
@@ -42,6 +60,7 @@ class KeyboardStatistic:
     def add_pressed_released_key_time_el(self, char, pressed_or_released_time):
         self.__pressed_released_key_times[char].append(pressed_or_released_time)
 
+    # Расчет динамики ввода парольной фразы
     def calculate_input_dynamic(self, password):
         time_pairs = list()
         for i in range(len(password)):
@@ -54,6 +73,7 @@ class KeyboardStatistic:
                     break
         return time_pairs
 
+    # Расчет математического ожидания скорости парольной фразы
     def calculate_mean_speed(self):
         mean_speed_dict = {"morning": 0.0, "afternoon": 0.0, "evening": 0.0, "night": 0.0}
         for day_time, speed in self.__speed_dict.items():
@@ -61,6 +81,7 @@ class KeyboardStatistic:
                 mean_speed_dict[day_time] = np.float(np.mean(self.__speed_dict[day_time]))
         return mean_speed_dict
 
+    # Расчет дисперсии скорости парольной фразы
     def calculate_var_speed(self):
         var_speed_dict = {"morning": 0.0, "afternoon": 0.0, "evening": 0.0, "night": 0.0}
         for day_time, speed in self.__speed_dict.items():
@@ -68,7 +89,8 @@ class KeyboardStatistic:
                 var_speed_dict[day_time] = np.float(np.var(self.__speed_dict[day_time]))
         return var_speed_dict
 
-    def calculate_mean_time_diff(self):
+    # Расчет времени удержания клавиш при вводе пароля
+    def calculate_key_hold(self):
         pressed_released_diff = dict()
         pressed_released_diff_list = list()
         for char, pressed_release_list in self.__pressed_released_key_times.items():
@@ -84,4 +106,3 @@ class KeyboardStatistic:
 
     def pressed_times_clear(self):
         self.__pressed_times.clear()
-

@@ -6,76 +6,281 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>212</height>
+    <width>422</width>
+    <height>412</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_3">
+   <layout class="QHBoxLayout" name="horizontalLayout_9">
     <item>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="4" column="0">
-       <widget class="QLabel" name="username_label">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <item>
+       <widget class="QGroupBox" name="input_groupBox">
+        <property name="autoFillBackground">
+         <bool>false</bool>
         </property>
-        <property name="text">
-         <string>Username</string>
+        <property name="styleSheet">
+         <string notr="true">border-color: rgb(0, 0, 0);
+border-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));
+gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(255, 255, 255, 255));</string>
         </property>
+        <property name="title">
+         <string>Input</string>
+        </property>
+        <property name="flat">
+         <bool>false</bool>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QLabel" name="username_label">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Username</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="username_line_edit"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QLabel" name="password_label">
+               <property name="font">
+                <font>
+                 <pointsize>10</pointsize>
+                 <weight>50</weight>
+                 <italic>false</italic>
+                 <bold>false</bold>
+                </font>
+               </property>
+               <property name="text">
+                <string>Password </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="password_line_edit"/>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="password_push_button">
+             <property name="text">
+              <string>OK</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="password_info_label_2">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="password_info_label">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
-      <item row="4" column="1">
-       <widget class="QLineEdit" name="username_line_edit"/>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="password_label">
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Password</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QLineEdit" name="password_line_edit"/>
-      </item>
-      <item row="6" column="0" colspan="2">
-       <widget class="QPushButton" name="password_push_button">
-        <property name="text">
-         <string>OK</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="0" colspan="2">
-       <widget class="QLabel" name="password_strength_label">
+      <item>
+       <widget class="QGroupBox" name="output_groupBox">
         <property name="enabled">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-         </font>
+        <property name="autoFillBackground">
+         <bool>false</bool>
         </property>
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
+        <property name="styleSheet">
+         <string notr="true">border-color: rgb(0, 0, 0);</string>
         </property>
-        <property name="text">
-         <string/>
+        <property name="title">
+         <string>Output</string>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
+        <property name="flat">
+         <bool>false</bool>
         </property>
+        <property name="checkable">
+         <bool>false</bool>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_3">
+               <item>
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>Keyboard overlaying</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_2">
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout">
+                   <item>
+                    <widget class="QLabel" name="first_type_overlaying_label">
+                     <property name="text">
+                      <string>1 type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLCDNumber" name="lcdNumber">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
+                     <property name="value" stdset="0">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="intValue" stdset="0">
+                      <number>0</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_2">
+                   <item>
+                    <widget class="QLabel" name="second_type_overlaying_label">
+                     <property name="text">
+                      <string>2 type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLCDNumber" name="lcdNumber_2">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
+                     <property name="value" stdset="0">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="intValue" stdset="0">
+                      <number>0</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" name="horizontalLayout_3">
+                   <item>
+                    <widget class="QLabel" name="third_type_overlaying_label">
+                     <property name="text">
+                      <string>3 type</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QLCDNumber" name="lcdNumber_3">
+                     <property name="font">
+                      <font>
+                       <weight>75</weight>
+                       <italic>true</italic>
+                       <bold>true</bold>
+                      </font>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
+                     <property name="value" stdset="0">
+                      <double>0.000000000000000</double>
+                     </property>
+                     <property name="intValue" stdset="0">
+                      <number>0</number>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QVBoxLayout" name="verticalLayout_7">
+             <item>
+              <widget class="QLabel" name="label">
+               <property name="text">
+                <string>Mean pressed-released time diff</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTableWidget" name="tableWidget"/>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -87,7 +292,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>460</width>
+     <width>422</width>
      <height>23</height>
     </rect>
    </property>
@@ -101,9 +306,19 @@
    </widget>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>Action</string>
+     <string>Stats</string>
     </property>
-    <addaction name="actionGet_stats"/>
+    <widget class="QMenu" name="menuInput_speed_value">
+     <property name="title">
+      <string>Entering passwod speed</string>
+     </property>
+     <addaction name="actionMorning"/>
+     <addaction name="actionDay"/>
+     <addaction name="actionEvening"/>
+     <addaction name="actionNight"/>
+    </widget>
+    <addaction name="menuInput_speed_value"/>
+    <addaction name="actionEntering_password_dynamic"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menu"/>
@@ -124,9 +339,29 @@
     <string>Exit</string>
    </property>
   </action>
-  <action name="actionGet_stats">
+  <action name="actionMorning">
    <property name="text">
-    <string>Get stats</string>
+    <string>Morning</string>
+   </property>
+  </action>
+  <action name="actionDay">
+   <property name="text">
+    <string>Day</string>
+   </property>
+  </action>
+  <action name="actionEvening">
+   <property name="text">
+    <string>Evening</string>
+   </property>
+  </action>
+  <action name="actionNight">
+   <property name="text">
+    <string>Night</string>
+   </property>
+  </action>
+  <action name="actionEntering_password_dynamic">
+   <property name="text">
+    <string>Entering password dynamic</string>
    </property>
   </action>
  </widget>

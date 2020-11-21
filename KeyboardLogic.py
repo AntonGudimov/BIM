@@ -13,12 +13,16 @@ class KeyboardLogic:
         return self.__user
 
     @property
-    def keyboard_statistic(self):
+    def keyboard_and_statistic(self):
         return self.__keyboard_and_statistic
 
     @user.setter
     def user(self, user):
         self.__user = user
+
+    @keyboard_and_statistic.setter
+    def keyboard_and_statistic(self, keyboard_and_statistic):
+        self.__keyboard_and_statistic = keyboard_and_statistic
 
     def add_keyboard(self, keyboard):
         self.__keyboard_and_statistic[keyboard] = KeyboardStatistic()
@@ -32,6 +36,7 @@ class KeyboardLogic:
     def add_pressed_time(self, keyboard, pressed_time):
         self.__keyboard_and_statistic[keyboard].add_pressed_time(pressed_time)
 
+    # Расчет сложности парольной фразы
     def examine_password_for_complexity(self):
         stats = PasswordStats(self.__user.password)
         complexity = stats.strength()
@@ -45,7 +50,7 @@ class KeyboardLogic:
 
     def calculate_input_dynamic(self, keyboard):
         chair_pairs = self.get_char_pairs_from_password()
-        time_pairs = self.keyboard_statistic[keyboard].calculate_input_dynamic(self.__user.password)
+        time_pairs = self.keyboard_and_statistic[keyboard].calculate_input_dynamic(self.__user.password)
         return chair_pairs, time_pairs
 
     def calculate_mean_speed(self, keyboard):
@@ -70,13 +75,15 @@ class KeyboardLogic:
             self.init_pressed_released_key_times_dict(keyboard)
         self.__keyboard_and_statistic[keyboard].add_pressed_released_key_time_el(char, pressed_or_released_time)
 
-    def calculate_mean_time_diff(self, keyboard):
-        return self.__keyboard_and_statistic[keyboard].calculate_mean_time_diff()
+    def calculate_key_hold(self, keyboard):
+        return self.__keyboard_and_statistic[keyboard].calculate_key_hold()
 
     def pressed_keys_clear(self, keyboard):
-        self.__keyboard_and_statistic[keyboard].pressed_keys_clear()
+        if self.__keyboard_and_statistic.get(keyboard, None):
+            self.__keyboard_and_statistic[keyboard].pressed_keys_clear()
 
     def pressed_times_clear(self, keyboard):
-        self.__keyboard_and_statistic[keyboard].pressed_times_clear()
+        if self.__keyboard_and_statistic.get(keyboard, None):
+            self.__keyboard_and_statistic[keyboard].pressed_times_clear()
 
 
