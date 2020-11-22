@@ -32,8 +32,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if len(speed_dict[day_time]):
             title = "Speed of the entering the password. Daytime = {0}\nmean speed = {1}\nvar speed = {2}".format(
                 sender, mean_speed_dict[day_time], var_speed_dict[day_time])
-            x_label = "number of entering the password"
-            y_label = "speed of the entering the password"
+            x_label = "number of the entering password"
+            y_label = "speed of the entering password"
 
             # Create the maptlotlib FigureCanvas object,
             # which defines a single set of axes as self.axes.
@@ -45,7 +45,6 @@ class MainWindow(QtWidgets.QMainWindow):
             sc.axes.set_title(title)
             sc.axes.set_xlabel(x_label)
             sc.axes.set_ylabel(y_label)
-
             self.setCentralWidget(sc)
             self.setWindowTitle("Entering speed password stats")
             self.show()
@@ -58,7 +57,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def input_password_dynamic(self, chair_and_time_pairs):
         if len(chair_and_time_pairs[1]):
-            title = "Dynamic of the entering the password"
+            title = "Dynamic of the entering password"
             x_label = "char pairs"
             y_label = "time difference [seconds]"
 

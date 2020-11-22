@@ -57,7 +57,8 @@ class AuthForm(QMainWindow, AuthFormUI):
         if a0.text():
             self.__pressed_key_time = time.time()
             QLineEdit.keyPressEvent(self.password_line_edit, a0)
-            if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password:
+            if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password \
+                    and a0.text() in self.__keyboard_logic.user.password:
                 if self.__pressed_key != "":
                     self.__is_overlaid = True
                     # Детектирование наложение клавиши 1 рода
@@ -72,7 +73,8 @@ class AuthForm(QMainWindow, AuthFormUI):
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
             self.__released_key_time = time.time()
-            if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password:
+            if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password and \
+                    a0.text() in self.__keyboard_logic.user.password:
                 self.__released_key = a0.text()
                 if self.__pressed_key != "":
                     if self.__pressed_key != a0.text():
@@ -114,9 +116,11 @@ class AuthForm(QMainWindow, AuthFormUI):
 
                 self.__keyboard_logic.add_keyboard(self.__keyboard)
                 password_strength = self.__keyboard_logic.examine_password_for_complexity()
-                self.password_info_label.setText(password_strength)
-                self.password_info_label.setVisible(True)
-                self.username_line_edit.setDisabled(True)
+                password_strength_msg = QMessageBox()
+                password_strength_msg.setIcon(QMessageBox.Information)
+                password_strength_msg.setText(password_strength)
+                password_strength_msg.setWindowTitle("Password strength message")
+                password_strength_msg.exec_()
 
                 count_str = "You need to input password {0} times".format(self.__needed_count)
                 self.password_info_label_2.setText(count_str)

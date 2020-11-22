@@ -224,7 +224,7 @@ class Ui_MainWindow(object):
         self.first_type_overlaying_label.setText(_translate("MainWindow", "1 type"))
         self.second_type_overlaying_label.setText(_translate("MainWindow", "2 type"))
         self.third_type_overlaying_label.setText(_translate("MainWindow", "3 type"))
-        self.label.setText(_translate("MainWindow", "Mean pressed-released time diff"))
+        self.label.setText(_translate("MainWindow", "Key time hold"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menu.setTitle(_translate("MainWindow", "Stats"))
         self.menuInput_speed_value.setTitle(_translate("MainWindow", "Entering passwod speed"))
