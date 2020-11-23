@@ -69,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow):
             sc.axes.set_title(title)
             sc.axes.set_xlabel(x_label)
             sc.axes.set_ylabel(y_label)
+            sc.axes.grid()
 
             self.setCentralWidget(sc)
             self.setWindowTitle("Input password dynamic")
