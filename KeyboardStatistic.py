@@ -3,12 +3,16 @@ import numpy as np
 
 class KeyboardStatistic:
     def __init__(self):
+        # словарь скорости ввода пароля
+        # каждый элемент листа - скорость ввода пароля
         self.__speed_dict = {"morning": list(), "afternoon": list(), "evening": list(), "night": list()}
-        self.__pressed_keys = list()
-        self.__pressed_times = list()
-        self.__key_overlay_count = 0
-        self.__key_overlay_count_2 = 0
-        self.__key_overlay_count_3 = 0
+        self.__pressed_keys = list()    # лист из нажатых клавиш пароля
+        self.__pressed_times = list()   # лист из времени нажатых клавиш пароля
+        self.__key_overlay_count = 0    # кол-во наложения 1 типа
+        self.__key_overlay_count_2 = 0  # кол-во наложения 2 типа
+        self.__key_overlay_count_3 = 0  # кол-во наложения 3 типа
+
+        # словарь ввида буква пароля : [время нажатия1, время отпускания1, ..., время нажатияn, время отпусканияn]
         self.__pressed_released_key_times = dict()
 
     @property
@@ -99,6 +103,7 @@ class KeyboardStatistic:
                     pressed_release_list[i + 1] - pressed_release_list[i])
             pressed_released_diff[char] = np.float(np.mean(pressed_released_diff_list))
             pressed_released_diff_list.clear()
+        self.__pressed_released_key_times.clear()
         return pressed_released_diff
 
     def pressed_keys_clear(self):
@@ -106,3 +111,7 @@ class KeyboardStatistic:
 
     def pressed_times_clear(self):
         self.__pressed_times.clear()
+
+
+
+

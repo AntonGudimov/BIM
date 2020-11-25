@@ -43,15 +43,15 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.password_info_label.setVisible(False)
         self.password_info_label_2.setVisible(False)
 
-        self.__err_msg = ""
-        self.__pressed_key = ""
-        self.__released_key = ""
-        self.__pressed_key_time = 0
-        self.__released_key_time = 0
+        self.__err_msg = "" # сообщение об ошибке
+        self.__pressed_key = "" # нажатая клавиша
+        self.__released_key = ""    # отпущенная клавиша
+        self.__pressed_key_time = 0 # время нажатия клавищи
+        self.__released_key_time = 0    # время отпускания клавиши
         self.__keyboard = "Standard keyboard"
         self.__chair_and_time_pairs = None
-        self.__needed_count = 3  # неоходимое кол-во раз ввода пароля для сбора статистики
-        self.__is_overlaid = False
+        self.__needed_count = 10  # неоходимое кол-во раз ввода пароля для сбора статистики
+        self.__is_overlaid = False # Булевская переменная для детектирования наложения
 
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():

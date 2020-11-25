@@ -30,8 +30,8 @@ class MainWindow(QtWidgets.QMainWindow):
             pass
 
         if len(speed_dict[day_time]):
-            title = "Speed of the entering the password. Daytime = {0}\nmean speed = {1}\nvar speed = {2}".format(
-                sender, mean_speed_dict[day_time], var_speed_dict[day_time])
+            title = "Speed of the entering password. Daytime = {0}\nmean speed = {1}\nvar speed = {2}".format(
+                sender, round(mean_speed_dict[day_time], 4), round(var_speed_dict[day_time], 4))
             x_label = "number of the entering password"
             y_label = "speed of the entering password"
 

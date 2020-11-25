@@ -87,3 +87,4 @@ class KeyboardLogic:
             self.__keyboard_and_statistic[keyboard].pressed_times_clear()
 
 
+
