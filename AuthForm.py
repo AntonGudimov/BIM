@@ -69,6 +69,7 @@ class AuthForm(QMainWindow, AuthFormUI):
                 if a0.text() in self.__keyboard_logic.user.password:
                     self.__keyboard_logic.add_pressed_released_key_time_el(self.__keyboard, a0.text(),
                                                                            self.__pressed_key_time)
+                self.__keyboard_logic.add_value_to_func_t(self.__keyboard)
 
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
@@ -98,9 +99,11 @@ class AuthForm(QMainWindow, AuthFormUI):
         if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password:
             if self.password_line_edit.text() == self.__keyboard_logic.user.password:
                 day_time = determine_day_time()
+                print(self.__keyboard_logic.form_vector(self.__keyboard))
                 self.__keyboard_logic.add_speed(self.__keyboard, day_time)
                 self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic(self.__keyboard)
                 self.display_form_stats()
+                # print(self.__keyboard_logic.keyboard_and_statistic.get(self.__keyboard).func_t)
             else:
                 if not self.password_line_edit.text():
                     self.__err_msg = "Enter the password"
@@ -216,6 +219,7 @@ class AuthForm(QMainWindow, AuthFormUI):
         key_overlay_count_3 = self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_3
 
         mean_pressed_released_diff = self.__keyboard_logic.calculate_key_hold(self.__keyboard)
+        self.__keyboard_logic.pressed_released_key_times_dict_clear(self.__keyboard)
         if not self.__needed_count - 1:
             self.password_info_label_2.setVisible(False)
             self.output_groupBox.setEnabled(True)

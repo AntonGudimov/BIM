@@ -15,6 +15,13 @@ class KeyboardStatistic:
         # словарь ввида буква пароля : [время нажатия1, время отпускания1, ..., время нажатияn, время отпусканияn]
         self.__pressed_released_key_times = dict()
 
+        # функция f(t)
+        self.__func_t = dict()
+
+    @property
+    def func_t(self):
+        return self.__func_t
+
     @property
     def speed_dict(self):
         return self.__speed_dict
@@ -103,7 +110,7 @@ class KeyboardStatistic:
                     pressed_release_list[i + 1] - pressed_release_list[i])
             pressed_released_diff[char] = np.float(np.mean(pressed_released_diff_list))
             pressed_released_diff_list.clear()
-        self.__pressed_released_key_times.clear()
+        # self.__pressed_released_key_times.clear()
         return pressed_released_diff
 
     def pressed_keys_clear(self):
@@ -112,6 +119,74 @@ class KeyboardStatistic:
     def pressed_times_clear(self):
         self.__pressed_times.clear()
 
+    def pressed_released_key_times_dict_clear(self):
+        self.__pressed_released_key_times.clear()
 
+    # Функции для 2 лабы
+    def add_value_to_func_t(self):
+        A = 1
+        k = 2
+        pressed_time = self.__pressed_times[-1]
+
+        if not len(self.__pressed_times) == 1:
+            pressed_key_before = self.__pressed_keys[-2]
+            pressed_time_before = self.__pressed_times[-2]
+
+            pressed_release_times = self.__pressed_released_key_times.get(pressed_key_before, None)
+            index = pressed_release_times.index(pressed_time_before)
+            if len(pressed_release_times) - 1 == index:
+                A *= k
+        self.__func_t[pressed_time] = A
+
+    def haara_func(self, n, tk):
+        r = -1
+        m = 0
+        if not n:
+            r = 0
+        else:
+            log2N = n
+            r_right_limit = 1
+            func_value = 0
+            # Определение r и m на основе n
+            while True:
+                for i in range(r_right_limit):
+                    r += 1
+                    m_right_limit = 2 ** r
+                    m = 0
+                    for j in range(1, m_right_limit + 1):
+                        m += 1
+                        log2N -= 1
+                        if not log2N:
+                            break
+                    if not log2N:
+                        break
+                if not log2N:
+                    break
+                else:
+                    r_right_limit += 1
+
+        # Расчет функции Хаара
+        if (m - 1) / (2 ** r) <= tk < (m - 0.5) / (2 ** r):
+            func_value = 2 ** (r / 2)
+        elif (m - 0.5) / (2 ** r) <= tk < m / (2 ** r):
+            func_value = - (2 ** (r / 2))
+        else:
+            func_value = 0
+        return func_value
+
+    def form_vector(self, password_length):
+        vector = list()
+        last_pressed_key = self.__pressed_keys[-1]
+        last_released_time = self.__pressed_released_key_times.get(last_pressed_key, None)[-1]
+        start_time = self.__pressed_times[0]
+        T = last_released_time - start_time
+        for i in range(password_length):
+            vector_el = 0
+            for j in range(len(self.__pressed_times)):
+                tk = self.__pressed_times[j]
+                vector_el += self.__func_t.get(tk, 0) * self.haara_func(i, (tk - start_time) / T)
+            vector_el_value = vector_el / password_length
+            vector.append(round(vector_el_value, 5))
+        return vector
 
 

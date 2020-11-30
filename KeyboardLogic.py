@@ -86,5 +86,18 @@ class KeyboardLogic:
         if self.__keyboard_and_statistic.get(keyboard, None):
             self.__keyboard_and_statistic[keyboard].pressed_times_clear()
 
+    def pressed_released_key_times_dict_clear(self, keyboard):
+        if self.__keyboard_and_statistic.get(keyboard, None):
+            self.__keyboard_and_statistic[keyboard].pressed_released_key_times_dict_clear()
+
+    # Функции для 2 лабы
+    def add_value_to_func_t(self, keyboard):
+        if self.__keyboard_and_statistic.get(keyboard, None):
+            self.__keyboard_and_statistic[keyboard].add_value_to_func_t()
+
+    def form_vector(self, keyboard):
+        if self.__keyboard_and_statistic.get(keyboard, None):
+            return self.__keyboard_and_statistic[keyboard].form_vector(len(self.__user.password))
+
 
 
