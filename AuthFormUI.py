@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(422, 412)
+        MainWindow.resize(422, 494)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout_9 = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -177,6 +177,8 @@ class Ui_MainWindow(object):
         self.menu.setObjectName("menu")
         self.menuInput_speed_value = QtWidgets.QMenu(self.menu)
         self.menuInput_speed_value.setObjectName("menuInput_speed_value")
+        self.menuDatabase = QtWidgets.QMenu(self.menubar)
+        self.menuDatabase.setObjectName("menuDatabase")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -197,6 +199,8 @@ class Ui_MainWindow(object):
         self.actionNight.setObjectName("actionNight")
         self.actionEntering_password_dynamic = QtWidgets.QAction(MainWindow)
         self.actionEntering_password_dynamic.setObjectName("actionEntering_password_dynamic")
+        self.actionInsert = QtWidgets.QAction(MainWindow)
+        self.actionInsert.setObjectName("actionInsert")
         self.menuFile.addAction(self.actionOpen)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionExit)
@@ -206,8 +210,10 @@ class Ui_MainWindow(object):
         self.menuInput_speed_value.addAction(self.actionNight)
         self.menu.addAction(self.menuInput_speed_value.menuAction())
         self.menu.addAction(self.actionEntering_password_dynamic)
+        self.menuDatabase.addAction(self.actionInsert)
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menu.menuAction())
+        self.menubar.addAction(self.menuDatabase.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -228,6 +234,7 @@ class Ui_MainWindow(object):
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.menu.setTitle(_translate("MainWindow", "Stats"))
         self.menuInput_speed_value.setTitle(_translate("MainWindow", "Entering passwod speed"))
+        self.menuDatabase.setTitle(_translate("MainWindow", "Database"))
         self.actionOpen.setText(_translate("MainWindow", "Open"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
@@ -236,4 +243,5 @@ class Ui_MainWindow(object):
         self.actionEvening.setText(_translate("MainWindow", "Evening"))
         self.actionNight.setText(_translate("MainWindow", "Night"))
         self.actionEntering_password_dynamic.setText(_translate("MainWindow", "Entering password dynamic"))
+        self.actionInsert.setText(_translate("MainWindow", "Insert"))
 

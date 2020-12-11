@@ -6,6 +6,7 @@ from FileLogic import FileLogic
 from GraphicForm import MainWindow as GraphicWindow
 
 import time
+import sqlite3 as sl
 
 
 def determine_day_time():
@@ -37,20 +38,21 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.actionEvening.triggered.connect(self.get_entering_speed_password_stats)
         self.actionNight.triggered.connect(self.get_entering_speed_password_stats)
         self.actionEntering_password_dynamic.triggered.connect(self.get_input_password_dynamic)
+        self.actionInsert.triggered.connect(self.data_base_func)
         self.actionOpen.triggered.connect(self.open_file)
         self.actionSave.triggered.connect(self.save_file)
         self.actionExit.triggered.connect(self.close)
         self.password_info_label.setVisible(False)
         self.password_info_label_2.setVisible(False)
 
+        self.__vector = list()
         self.__err_msg = "" # сообщение об ошибке
         self.__pressed_key = "" # нажатая клавиша
         self.__released_key = ""    # отпущенная клавиша
         self.__pressed_key_time = 0 # время нажатия клавищи
         self.__released_key_time = 0    # время отпускания клавиши
-        self.__keyboard = "Standard keyboard"
         self.__chair_and_time_pairs = None
-        self.__needed_count = 10  # неоходимое кол-во раз ввода пароля для сбора статистики
+        self.__needed_count = 3  # неоходимое кол-во раз ввода пароля для сбора статистики
         self.__is_overlaid = False # Булевская переменная для детектирования наложения
 
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
@@ -62,14 +64,14 @@ class AuthForm(QMainWindow, AuthFormUI):
                 if self.__pressed_key != "":
                     self.__is_overlaid = True
                     # Детектирование наложение клавиши 1 рода
-                    self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count += 1
+                    self.__keyboard_logic.keyboard_statistic.key_overlay_count += 1
                 self.__pressed_key = a0.text()
-                self.__keyboard_logic.add_pressed_key(self.__keyboard, a0.text())
-                self.__keyboard_logic.add_pressed_time(self.__keyboard, self.__pressed_key_time)
+                self.__keyboard_logic.add_pressed_key(a0.text())
+                self.__keyboard_logic.add_pressed_time(self.__pressed_key_time)
                 if a0.text() in self.__keyboard_logic.user.password:
-                    self.__keyboard_logic.add_pressed_released_key_time_el(self.__keyboard, a0.text(),
+                    self.__keyboard_logic.add_pressed_released_key_time_el(a0.text(),
                                                                            self.__pressed_key_time)
-                self.__keyboard_logic.add_value_to_func_t(self.__keyboard)
+                self.__keyboard_logic.add_value_to_func_t()
 
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
@@ -80,16 +82,15 @@ class AuthForm(QMainWindow, AuthFormUI):
                 if self.__pressed_key != "":
                     if self.__pressed_key != a0.text():
                         # Детектирование наложение клавиши 2 рода
-                        self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_2 += 1
+                        self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 += 1
                     else:
                         if self.__is_overlaid:
                             # Детектирование наложение клавиши 3 рода
-                            self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_3 += 1
+                            self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 += 1
                     self.__is_overlaid = False
                     self.__pressed_key = ""
                 if a0.text() in self.__keyboard_logic.user.password:
-                    self.__keyboard_logic.add_pressed_released_key_time_el(self.__keyboard, a0.text(),
-                                                                           self.__released_key_time)
+                    self.__keyboard_logic.add_pressed_released_key_time_el(a0.text(), self.__released_key_time)
 
     def clicked_on_password_push_button(self):
         self.password_info_label.clear()
@@ -99,11 +100,11 @@ class AuthForm(QMainWindow, AuthFormUI):
         if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password:
             if self.password_line_edit.text() == self.__keyboard_logic.user.password:
                 day_time = determine_day_time()
-                print(self.__keyboard_logic.form_vector(self.__keyboard))
-                self.__keyboard_logic.add_speed(self.__keyboard, day_time)
-                self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic(self.__keyboard)
+                self.__vector = self.__keyboard_logic.form_vector()
+                print(self.__vector)
+                self.__keyboard_logic.add_speed(day_time)
+                self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic()
                 self.display_form_stats()
-                # print(self.__keyboard_logic.keyboard_and_statistic.get(self.__keyboard).func_t)
             else:
                 if not self.password_line_edit.text():
                     self.__err_msg = "Enter the password"
@@ -117,7 +118,6 @@ class AuthForm(QMainWindow, AuthFormUI):
                 self.__keyboard_logic.user.login = self.username_line_edit.text()
                 self.__keyboard_logic.user.password = self.password_line_edit.text()
 
-                self.__keyboard_logic.add_keyboard(self.__keyboard)
                 password_strength = self.__keyboard_logic.examine_password_for_complexity()
                 password_strength_msg = QMessageBox()
                 password_strength_msg.setIcon(QMessageBox.Information)
@@ -135,12 +135,11 @@ class AuthForm(QMainWindow, AuthFormUI):
                 self.password_info_label.setStyleSheet("background-color: red")
                 self.password_info_label.setVisible(True)
         self.password_line_edit.setText("")
-        self.__keyboard_logic.pressed_keys_clear(self.__keyboard)
-        self.__keyboard_logic.pressed_times_clear(self.__keyboard)
-        if self.__keyboard_logic.keyboard_and_statistic.get(self.__keyboard, None):
-            self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count = 0
-            self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_2 = 0
-            self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_3 = 0
+        self.__keyboard_logic.pressed_keys_clear()
+        self.__keyboard_logic.pressed_times_clear()
+        self.__keyboard_logic.keyboard_statistic.key_overlay_count = 0
+        self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
+        self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
 
     # Слот для сигнала на получение гистограммы скорости ввода парольной фразы
     def get_entering_speed_password_stats(self):
@@ -150,12 +149,12 @@ class AuthForm(QMainWindow, AuthFormUI):
             msg.setText("There's no user")
             msg.setWindowTitle("Warning msg")
             msg.exec_()
-        elif not self.__needed_count - 1 and self.__keyboard_logic.keyboard_and_statistic.get(self.__keyboard, None):
-            mean_speed_dict = self.__keyboard_logic.calculate_mean_speed(self.__keyboard)
-            var_speed_dict = self.__keyboard_logic.calculate_var_speed(self.__keyboard)
+        elif not self.__needed_count - 1:
+            mean_speed_dict = self.__keyboard_logic.calculate_mean_speed()
+            var_speed_dict = self.__keyboard_logic.calculate_var_speed()
 
             self.__graphic_window.get_entering_speed_password_stats(
-                self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].speed_dict,
+                self.__keyboard_logic.keyboard_statistic.speed_dict,
                 mean_speed_dict, var_speed_dict)
         else:
             msg = QMessageBox()
@@ -172,7 +171,7 @@ class AuthForm(QMainWindow, AuthFormUI):
             msg.setText("There's no user")
             msg.setWindowTitle("Warning msg")
             msg.exec_()
-        elif not self.__needed_count - 1 and self.__keyboard_logic.keyboard_and_statistic.get(self.__keyboard, None):
+        elif not self.__needed_count - 1:
             self.__graphic_window.input_password_dynamic(self.__chair_and_time_pairs)
         else:
             msg = QMessageBox()
@@ -194,7 +193,7 @@ class AuthForm(QMainWindow, AuthFormUI):
                     self.username_line_edit.setText(self.__keyboard_logic.user.login)
                     self.username_line_edit.setDisabled(True)
                     self.__needed_count = 1
-                    self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic(self.__keyboard)
+                    self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic()
                     self.tableWidget.setColumnCount(2)
                     self.display_form_stats()
 
@@ -214,12 +213,12 @@ class AuthForm(QMainWindow, AuthFormUI):
                 FileLogic.save_file(fileName[0], self.__keyboard_logic)
 
     def display_form_stats(self):
-        key_overlay_count = self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count
-        key_overlay_count_2 = self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_2
-        key_overlay_count_3 = self.__keyboard_logic.keyboard_and_statistic[self.__keyboard].key_overlay_count_3
+        key_overlay_count = self.__keyboard_logic.keyboard_statistic.key_overlay_count
+        key_overlay_count_2 = self.__keyboard_logic.keyboard_statistic.key_overlay_count_2
+        key_overlay_count_3 = self.__keyboard_logic.keyboard_statistic.key_overlay_count_3
 
-        mean_pressed_released_diff = self.__keyboard_logic.calculate_key_hold(self.__keyboard)
-        self.__keyboard_logic.pressed_released_key_times_dict_clear(self.__keyboard)
+        mean_pressed_released_diff = self.__keyboard_logic.calculate_key_hold()
+        self.__keyboard_logic.pressed_released_key_times_dict_clear()
         if not self.__needed_count - 1:
             self.password_info_label_2.setVisible(False)
             self.output_groupBox.setEnabled(True)
@@ -238,3 +237,25 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.__needed_count -= 1
             count_str = "You need to input password {0} times".format(self.__needed_count)
             self.password_info_label_2.setText(count_str)
+
+    def data_base_func(self):
+        user = self.__keyboard_logic.user
+        con = sl.connect('test.db')
+        sql = 'INSERT INTO USER (login, password) values(?, ?)'
+        data = [
+            (user.login, user.password)
+        ]
+        with con:
+            con.executemany(sql, data)
+
+        cur = con.cursor()
+        with con:
+            cur.execute("SELECT * FROM USER WHERE login=?", (user.login,))
+            rows = cur.fetchall()
+        for i in range(len(self.__vector)):
+            sql_vector = 'INSERT INTO VECTOR_ELEMENT (value, value_index, user_id) values(?, ?, ?)'
+            data_vector = [
+                (self.__vector[i], i, rows[0][0])
+            ]
+            with con:
+                con.executemany(sql_vector, data_vector)
