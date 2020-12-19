@@ -39,11 +39,11 @@ class KeyboardLogic:
         complexity = stats.strength()
 
         if 0 <= complexity < 0.33:
-            return "password is weak"
+            return "weak"
         elif 0.33 <= complexity < 0.66:
-            return "password is medium"
+            return "medium"
         elif 0.66 <= complexity < 1:
-            return "password is strong"
+            return "strong"
 
     def calculate_input_dynamic(self):
         chair_pairs = self.get_char_pairs_from_password()

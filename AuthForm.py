@@ -4,6 +4,7 @@ from PyQt5 import QtGui
 from KeyboardLogic import KeyboardLogic
 from FileLogic import FileLogic
 from GraphicForm import MainWindow as GraphicWindow
+from DataBase import DataBase
 
 import time
 import sqlite3 as sl
@@ -38,22 +39,26 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.actionEvening.triggered.connect(self.get_entering_speed_password_stats)
         self.actionNight.triggered.connect(self.get_entering_speed_password_stats)
         self.actionEntering_password_dynamic.triggered.connect(self.get_input_password_dynamic)
-        self.actionInsert.triggered.connect(self.data_base_func)
+        #  self.actionInsert.triggered.connect(self.data_base_func)
         self.actionOpen.triggered.connect(self.open_file)
         self.actionSave.triggered.connect(self.save_file)
         self.actionExit.triggered.connect(self.close)
+        self.registrationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
         self.password_info_label.setVisible(False)
         self.password_info_label_2.setVisible(False)
 
         self.__vector = list()
-        self.__err_msg = "" # сообщение об ошибке
-        self.__pressed_key = "" # нажатая клавиша
-        self.__released_key = ""    # отпущенная клавиша
-        self.__pressed_key_time = 0 # время нажатия клавищи
-        self.__released_key_time = 0    # время отпускания клавиши
+        self.__err_msg = ""  # сообщение об ошибке
+        self.__pressed_key = ""  # нажатая клавиша
+        self.__released_key = ""  # отпущенная клавиша
+        self.__pressed_key_time = 0  # время нажатия клавищи
+        self.__released_key_time = 0  # время отпускания клавиши
         self.__chair_and_time_pairs = None
         self.__needed_count = 3  # неоходимое кол-во раз ввода пароля для сбора статистики
-        self.__is_overlaid = False # Булевская переменная для детектирования наложения
+        self.__is_overlaid = False  # Булевская переменная для детектирования наложения
+
+        self.username_line_edit.setDisabled(True)
+        self.password_line_edit.setDisabled(True)
 
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
@@ -92,54 +97,66 @@ class AuthForm(QMainWindow, AuthFormUI):
                 if a0.text() in self.__keyboard_logic.user.password:
                     self.__keyboard_logic.add_pressed_released_key_time_el(a0.text(), self.__released_key_time)
 
+
     def clicked_on_password_push_button(self):
-        self.password_info_label.clear()
-        self.password_info_label.setVisible(False)
-        self.__err_msg = ""
-        self.password_info_label.setStyleSheet("background-color: ")
-        if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password:
-            if self.password_line_edit.text() == self.__keyboard_logic.user.password:
-                day_time = determine_day_time()
-                self.__vector = self.__keyboard_logic.form_vector()
-                print(self.__vector)
-                self.__keyboard_logic.add_speed(day_time)
-                self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic()
-                self.display_form_stats()
-            else:
-                if not self.password_line_edit.text():
-                    self.__err_msg = "Enter the password"
+        if self.registrationRadioButton.isChecked():
+            self.password_info_label.clear()
+            self.password_info_label.setVisible(False)
+            self.__err_msg = ""
+            self.password_info_label.setStyleSheet("background-color: ")
+            if self.__keyboard_logic.user.login and self.__keyboard_logic.user.password:
+                if self.password_line_edit.text() == self.__keyboard_logic.user.password:
+                    day_time = determine_day_time()
+                    self.__vector = self.__keyboard_logic.form_vector()
+                    print(self.__vector)
+                    self.__keyboard_logic.add_speed(day_time)
+                    self.__chair_and_time_pairs = self.__keyboard_logic.calculate_input_dynamic()
+                    self.display_form_stats()
                 else:
-                    self.__err_msg = "Wrong password. Try again"
-                self.password_info_label.setText(self.__err_msg)
-                self.password_info_label.setStyleSheet("background-color: red")
-                self.password_info_label.setVisible(True)
-        else:
-            if self.username_line_edit.text() and self.password_line_edit.text():
-                self.__keyboard_logic.user.login = self.username_line_edit.text()
-                self.__keyboard_logic.user.password = self.password_line_edit.text()
-
-                password_strength = self.__keyboard_logic.examine_password_for_complexity()
-                password_strength_msg = QMessageBox()
-                password_strength_msg.setIcon(QMessageBox.Information)
-                password_strength_msg.setText(password_strength)
-                password_strength_msg.setWindowTitle("Password strength message")
-                password_strength_msg.exec_()
-
-                count_str = "You need to input password {0} times".format(self.__needed_count)
-                self.password_info_label_2.setText(count_str)
-                self.password_info_label_2.setVisible(True)
-                self.tableWidget.setColumnCount(2)
+                    if not self.password_line_edit.text():
+                        self.__err_msg = "Enter the password"
+                    else:
+                        self.__err_msg = "Wrong password. Try again"
+                    self.password_info_label.setText(self.__err_msg)
+                    self.password_info_label.setStyleSheet("background-color: red")
+                    self.password_info_label.setVisible(True)
             else:
-                self.__err_msg = "Enter input data"
-                self.password_info_label.setText(self.__err_msg)
-                self.password_info_label.setStyleSheet("background-color: red")
-                self.password_info_label.setVisible(True)
-        self.password_line_edit.setText("")
-        self.__keyboard_logic.pressed_keys_clear()
-        self.__keyboard_logic.pressed_times_clear()
-        self.__keyboard_logic.keyboard_statistic.key_overlay_count = 0
-        self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
-        self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
+                if self.username_line_edit.text() and self.password_line_edit.text():
+                    self.__keyboard_logic.user.login = self.username_line_edit.text()
+                    self.__keyboard_logic.user.password = self.password_line_edit.text()
+
+                    password_strength = self.__keyboard_logic.examine_password_for_complexity()
+                    password_strength_msg = QMessageBox()
+                    password_strength_msg.setIcon(QMessageBox.Information)
+                    password_strength_msg.setText('password is ' + password_strength)
+                    password_strength_msg.setWindowTitle("Password strength message")
+                    password_strength_msg.exec_()
+
+                    count_str = "You need to input password {0} times".format(self.__needed_count)
+                    self.password_info_label_2.setText(count_str)
+                    self.password_info_label_2.setVisible(True)
+                    self.tableWidget.setColumnCount(2)
+                else:
+                    self.__err_msg = "Enter input data"
+                    self.password_info_label.setText(self.__err_msg)
+                    self.password_info_label.setStyleSheet("background-color: red")
+                    self.password_info_label.setVisible(True)
+            self.password_line_edit.setText("")
+            self.__keyboard_logic.pressed_keys_clear()
+            self.__keyboard_logic.pressed_times_clear()
+            self.__keyboard_logic.keyboard_statistic.key_overlay_count = 0
+            self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
+            self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
+        elif self.identificationRadioButton.isChecked():
+            pass
+        elif self.verificationRadioButton.isChecked():
+            pass
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setText("Operation is not chosen")
+            msg.setWindowTitle("Warning msg")
+            msg.exec_()
 
     # Слот для сигнала на получение гистограммы скорости ввода парольной фразы
     def get_entering_speed_password_stats(self):
@@ -226,36 +243,22 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.lcdNumber.display(key_overlay_count)
             self.lcdNumber_2.display(key_overlay_count_2)
             self.lcdNumber_3.display(key_overlay_count_3)
-
             index = 0
             self.tableWidget.setRowCount(len(mean_pressed_released_diff.keys()))
             for k, v in mean_pressed_released_diff.items():
                 self.tableWidget.setItem(index, 0, QTableWidgetItem(k))
                 self.tableWidget.setItem(index, 1, QTableWidgetItem("{0}".format(round(v, 3))))
                 index += 1
+
+            ####################################################################################
+            key_overlaying_list = (key_overlay_count, key_overlay_count_2, key_overlay_count_3)
+            self.db = DataBase('test.db')
+            self.db.register_user(self.__keyboard_logic, key_overlaying_list, mean_pressed_released_diff, self.__vector)
         else:
             self.__needed_count -= 1
             count_str = "You need to input password {0} times".format(self.__needed_count)
             self.password_info_label_2.setText(count_str)
 
-    def data_base_func(self):
-        user = self.__keyboard_logic.user
-        con = sl.connect('test.db')
-        sql = 'INSERT INTO USER (login, password) values(?, ?)'
-        data = [
-            (user.login, user.password)
-        ]
-        with con:
-            con.executemany(sql, data)
-
-        cur = con.cursor()
-        with con:
-            cur.execute("SELECT * FROM USER WHERE login=?", (user.login,))
-            rows = cur.fetchall()
-        for i in range(len(self.__vector)):
-            sql_vector = 'INSERT INTO VECTOR_ELEMENT (value, value_index, user_id) values(?, ?, ?)'
-            data_vector = [
-                (self.__vector[i], i, rows[0][0])
-            ]
-            with con:
-                con.executemany(sql_vector, data_vector)
+    def set_login_and_password_lines_enabled(self):
+        self.username_line_edit.setEnabled(True)
+        self.password_line_edit.setEnabled(True)
