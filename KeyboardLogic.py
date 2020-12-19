@@ -33,6 +33,12 @@ class KeyboardLogic:
     def add_pressed_time(self, pressed_time):
         self.__keyboard_statistic.add_pressed_time(pressed_time)
 
+    def add_released_key(self, released_key):
+        self.__keyboard_statistic.add_released_key(released_key)
+
+    def add_released_time(self, released_time):
+        self.__keyboard_statistic.add_released_time(released_time)
+
     # Расчет сложности парольной фразы
     def examine_password_for_complexity(self):
         stats = PasswordStats(self.__user.password)

@@ -20,6 +20,8 @@ class DataBase:
         self.insert_key_hold(mean_pressed_release_diff, user_id)
         self.insert_vector(vector_list, user_id)
 
+        return user_id
+
     def insert_user(self, user: User):
         # don't forget to implement try-catch
         sql_query = 'INSERT INTO USER (login, password) values (?, ?)'
@@ -33,7 +35,8 @@ class DataBase:
         with self.__conn:
             cur.execute("SELECT * FROM USER WHERE login=?", (user.login,))
             rows = cur.fetchall()
-            user_id = rows[0][0]
+            if rows:
+                user_id = rows[0][0]
         return user_id
 
     def insert_complexity(self, complexity, user_id):
@@ -119,3 +122,22 @@ class DataBase:
             ]
             with self.__conn:
                 self.__conn.executemany(sql_query, data_vector)
+
+    def identify_user(self, user: User, vector: list):
+        user_id = self.select_user_id(user)
+        epsilon = [1.5 for x in range(len(vector))]
+        if user_id == -1:
+            return False
+        else:
+            cur = self.__conn.cursor()
+            with self.__conn:
+                cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_id,))
+                rows = cur.fetchall()
+            extracted_vector = [vector_el for vector_el in rows]
+            for i in range(len(vector)):
+                if abs(vector[i]) - abs(extracted_vector[i][0]) > epsilon[i]:
+                    return False
+            return True
+
+    def verify_user(self, user: User, vector: list, id: int):
+        pass

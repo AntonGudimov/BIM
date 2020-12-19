@@ -8,6 +8,8 @@ class KeyboardStatistic:
         self.__speed_dict = {"morning": list(), "afternoon": list(), "evening": list(), "night": list()}
         self.__pressed_keys = list()    # лист из нажатых клавиш пароля
         self.__pressed_times = list()   # лист из времени нажатых клавиш пароля
+        self.__released_keys = list()
+        self.__released_times = list()
         self.__key_overlay_count = 0    # кол-во наложения 1 типа
         self.__key_overlay_count_2 = 0  # кол-во наложения 2 типа
         self.__key_overlay_count_3 = 0  # кол-во наложения 3 типа
@@ -63,6 +65,12 @@ class KeyboardStatistic:
 
     def add_pressed_time(self, pressed_time):
         self.__pressed_times.append(pressed_time)
+
+    def add_released_key(self, released_key):
+        self.__released_keys.append(released_key)
+
+    def add_released_time(self, released_time):
+        self.__released_times.append(released_time)
 
     def init_pressed_released_key_times_dict(self, password):
         for char in password:
@@ -132,9 +140,10 @@ class KeyboardStatistic:
             pressed_key_before = self.__pressed_keys[-2]
             pressed_time_before = self.__pressed_times[-2]
 
-            pressed_release_times = self.__pressed_released_key_times.get(pressed_key_before, None)
-            index = pressed_release_times.index(pressed_time_before)
-            if len(pressed_release_times) - 1 == index:
+            #pressed_release_times = self.__pressed_released_key_times.get(pressed_key_before, None)
+            #index = pressed_release_times.index(pressed_time_before)
+            #if len(pressed_release_times) - 1 == index:
+            if len(self.__released_times) != len(self.__pressed_times) - 1:
                 A *= k
         self.__func_t[pressed_time] = A
 
@@ -177,7 +186,8 @@ class KeyboardStatistic:
     def form_vector(self, password_length):
         vector = list()
         last_pressed_key = self.__pressed_keys[-1]
-        last_released_time = self.__pressed_released_key_times.get(last_pressed_key, None)[-1]
+        #last_released_time = self.__pressed_released_key_times.get(last_pressed_key, None)[-1]
+        last_released_time = self.__released_times[-1]
         start_time = self.__pressed_times[0]
         T = last_released_time - start_time
         for i in range(password_length):
