@@ -87,6 +87,12 @@ class KeyboardLogic:
     def pressed_times_clear(self):
         self.__keyboard_statistic.pressed_times_clear()
 
+    def released_keys_clear(self):
+        self.__keyboard_statistic.released_keys_clear()
+
+    def released_times_clear(self):
+        self.__keyboard_statistic.released_times_clear()
+
     def pressed_released_key_times_dict_clear(self):
         self.__keyboard_statistic.pressed_released_key_times_dict_clear()
 

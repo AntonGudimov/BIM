@@ -127,6 +127,12 @@ class KeyboardStatistic:
     def pressed_times_clear(self):
         self.__pressed_times.clear()
 
+    def released_keys_clear(self):
+        self.__released_keys.clear()
+
+    def released_times_clear(self):
+        self.__released_times.clear()
+
     def pressed_released_key_times_dict_clear(self):
         self.__pressed_released_key_times.clear()
 
