@@ -57,9 +57,9 @@ class DataBase:
                 sql_query = 'INSERT INTO INPUT_PASSWORD_SPEED (speed, day_time, user_id) values (?, ?, ?)'
                 data_vector = [
                     (items[1][-1],
-                        day_time,
-                        user_id)
-                    ]
+                     day_time,
+                     user_id)
+                ]
                 with self.__conn:
                     self.__conn.executemany(sql_query, data_vector)
 
@@ -101,7 +101,7 @@ class DataBase:
                 for j in range(key_overlaying_list[i]):
                     sql_query = 'INSERT INTO KEY_OVERLAYING (type, user_id) values (?, ?)'
                     data_vector = [
-                        (i + 1,     # i + 1 - type of overlaying
+                        (i + 1,  # i + 1 - type of overlaying
                          user_id)
                     ]
                     with self.__conn:
@@ -131,7 +131,7 @@ class DataBase:
     def identify_user(self, user: User, vector: list):
         user_in_db = self.isUserOk(user)
         if user_in_db[0] == -1:
-            return True, "Wrong input data"
+            return False, "Wrong input data"
         else:
             if user_in_db[1]:
                 cur = self.__conn.cursor()
@@ -142,21 +142,42 @@ class DataBase:
                     for i in range(len(vector)):
                         if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) > mean_and_var_vector[1][i]:
                             return False, "Wrong input data"
-                    return True, "User is found"
+                    return True, user_in_db[2], user_in_db[0]
             else:
                 return False, "Wrong input data"
 
     def verify_user(self, user: User, vector: list, id: int):
-        pass
+        user_in_db = self.isUserOk(user, id)
+        if user_in_db[0] == -1:
+            return False, "Wrong input data"
+        else:
+            if user_in_db[1]:
+                cur = self.__conn.cursor()
+                with self.__conn:
+                    cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[0],))
+                    rows = cur.fetchall()
+                    mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
+                    for i in range(len(vector)):
+                        if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) > mean_and_var_vector[1][i]:
+                            return False, "Wrong input data"
+                    return True, user_in_db[2]
+            else:
+                return False, "Wrong input data"
 
-    def isUserOk(self, user: User):
+    def isUserOk(self, user: User, input_user_id=-1):
         user_id = -1
-        cur = self.__conn.cursor()
-        with self.__conn:
-            cur.execute("SELECT * FROM USER WHERE login=?", (user.login,))
-            rows = cur.fetchall()
+        if input_user_id != -1:
+            cur = self.__conn.cursor()
+            with self.__conn:
+                cur.execute("SELECT * FROM USER WHERE id=? AND login=?", (input_user_id, user.login,))
+                rows = cur.fetchall()
+        else:
+            cur = self.__conn.cursor()
+            with self.__conn:
+                cur.execute("SELECT * FROM USER WHERE login=?", (user.login,))
+                rows = cur.fetchall()
         if rows:
             user_id = rows[0][0]
             if user.password == rows[0][2]:
-                return user_id, True
+                return user_id, True, user.login
         return user_id, False

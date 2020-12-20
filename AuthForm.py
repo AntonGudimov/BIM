@@ -67,7 +67,7 @@ class AuthForm(QMainWindow, AuthFormUI):
         if a0.text():
             self.__pressed_key_time = time.time()
             QLineEdit.keyPressEvent(self.password_line_edit, a0)
-            if self.identificationRadioButton.isChecked() or (
+            if self.identificationRadioButton.isChecked() or  self.verificationRadioButton.isChecked or (
                     self.__keyboard_logic.user.login and self.__keyboard_logic.user.password \
                     and a0.text() in self.__keyboard_logic.user.password):
                 if self.__pressed_key != "":
@@ -85,7 +85,7 @@ class AuthForm(QMainWindow, AuthFormUI):
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
             self.__released_key_time = time.time()
-            if self.identificationRadioButton.isChecked() or (
+            if self.identificationRadioButton.isChecked() or  self.verificationRadioButton.isChecked or (
                     self.__keyboard_logic.user.login and self.__keyboard_logic.user.password and \
                     a0.text() in self.__keyboard_logic.user.password):
                 self.__released_key = a0.text()
@@ -184,14 +184,14 @@ class AuthForm(QMainWindow, AuthFormUI):
             if result[0]:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
-                msg.setText(result[1])
-                msg.setWindowTitle("Info msg")
+                msg.setText('Hello {0}\nID = {1}'.format(result[1], result[2]))
+                msg.setWindowTitle("User is found")
                 msg.exec_()
             else:
                 msg = QMessageBox()
-                msg.setIcon(QMessageBox.Warning)
+                msg.setIcon(QMessageBox.Critical)
                 msg.setText(result[1])
-                msg.setWindowTitle("Warning msg")
+                msg.setWindowTitle("User is not found")
                 msg.exec_()
             self.password_line_edit.clear()
 
@@ -204,7 +204,33 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
             self.__keyboard_logic.pressed_released_key_times_dict_clear()
         elif self.verificationRadioButton.isChecked():
-            pass
+            self.__keyboard_logic.user.login = self.username_line_edit.text()
+            self.__keyboard_logic.user.password = self.password_line_edit.text()
+            self.__vector = self.__keyboard_logic.form_vector()
+            print(self.__vector)
+            result = self.__db.verify_user(self.__keyboard_logic.user, self.__vector, 60)
+            if result[0]:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText('Hello {0}'.format(result[1]))
+                msg.setWindowTitle("User is found")
+                msg.exec_()
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setText(result[1])
+                msg.setWindowTitle("User is not found")
+                msg.exec_()
+            self.password_line_edit.clear()
+
+            self.__keyboard_logic.pressed_keys_clear()
+            self.__keyboard_logic.pressed_times_clear()
+            self.__keyboard_logic.released_keys_clear()
+            self.__keyboard_logic.released_times_clear()
+            self.__keyboard_logic.keyboard_statistic.key_overlay_count = 0
+            self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
+            self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
+            self.__keyboard_logic.pressed_released_key_times_dict_clear()
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
