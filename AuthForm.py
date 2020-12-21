@@ -1,10 +1,12 @@
 from AuthFormUI import Ui_MainWindow as AuthFormUI
 from PyQt5.QtWidgets import QMainWindow, QLineEdit, QFileDialog, QTableWidgetItem, QMessageBox, QInputDialog
 from PyQt5 import QtGui
+from PyQt5.QtCore import pyqtSignal
 from KeyboardLogic import KeyboardLogic
 from FileLogic import FileLogic
 from GraphicForm import MainWindow as GraphicWindow
 from DataBase import DataBase
+from DB_Form import DB_Widget as DBWindow
 
 import time
 
@@ -46,6 +48,7 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.identificationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
         # self.verificationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
         self.verificationRadioButton.toggled.connect(self.show_dialog)
+        self.db_action_open.triggered.connect(self.open_db)
         self.password_info_label.setVisible(False)
         self.password_info_label_2.setVisible(False)
 
@@ -56,7 +59,7 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.__pressed_key_time = 0  # время нажатия клавищи
         self.__released_key_time = 0  # время отпускания клавиши
         self.__chair_and_time_pairs = None
-        self.__needed_count = 50  # неоходимое кол-во раз ввода пароля для сбора статистики
+        self.__needed_count = 10  # неоходимое кол-во раз ввода пароля для сбора статистики
         self.__is_overlaid = False  # Булевская переменная для детектирования наложения
         self.__db = DataBase('test.db')
         self.__user_id = -1
@@ -64,6 +67,8 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.__mean_pressed_released_diff = dict()
         self.username_line_edit.setDisabled(True)
         self.password_line_edit.setDisabled(True)
+        self.__transfered_data = pyqtSignal(DataBase)
+        self.__db_form = DBWindow()
 
     def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
@@ -184,16 +189,17 @@ class AuthForm(QMainWindow, AuthFormUI):
             print(self.__vector)
             result = self.__db.identify_user(self.__keyboard_logic.user.password, self.__vector)
             if result[0] != -1 and result[1] != "":
+                self.__keyboard_logic.user.login = result[1]
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText('Hello {0}\nID = {1}'.format(result[1], result[0]))
-                msg.setWindowTitle("User is found")
+                msg.setWindowTitle("Access granted")
                 msg.exec_()
             else:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
                 msg.setText("User is not found")
-                msg.setWindowTitle("Error msg")
+                msg.setWindowTitle("Access denied")
                 msg.exec_()
             self.username_line_edit.clear()
             self.password_line_edit.clear()
@@ -223,6 +229,7 @@ class AuthForm(QMainWindow, AuthFormUI):
             print(self.__vector)
             result = self.__db.verify_user(self.__keyboard_logic.user.password, self.__vector, self.__input_id)
             if result[0]:
+                self.__keyboard_logic.user.login = result[1]
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText('Hello {0}'.format(result[1]))
@@ -367,7 +374,10 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.password_info_label_2.setText(count_str)
 
     def set_login_and_password_lines_enabled(self):
-        self.username_line_edit.setDisabled(True)
+        if self.registrationRadioButton.isChecked():
+            self.username_line_edit.setEnabled(True)
+        else:
+            self.username_line_edit.setDisabled(True)
         self.password_line_edit.setEnabled(True)
 
     def show_dialog(self):
@@ -405,3 +415,17 @@ class AuthForm(QMainWindow, AuthFormUI):
                 return True
             elif msg.clickedButton() == no_button:
                 return False
+
+    def open_db(self):
+        if self.__keyboard_logic.user.login != "" and self.__keyboard_logic.user.password != "":
+            self.__db_form.set_transefered_data(self.__db)
+            self.__db_form.show()
+        else:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Authenticate or verify first")
+            msg.setWindowTitle("Access denied")
+            msg.exec_()
+
+    def get_db(self):
+        return self.__db

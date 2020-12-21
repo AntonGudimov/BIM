@@ -358,8 +358,15 @@ gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(
     <addaction name="menuInput_speed_value"/>
     <addaction name="actionEntering_password_dynamic"/>
    </widget>
+   <widget class="QMenu" name="menuDatabase">
+    <property name="title">
+     <string>Database</string>
+    </property>
+    <addaction name="db_action_open"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menu"/>
+   <addaction name="menuDatabase"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
@@ -400,6 +407,11 @@ gridline-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgba(
   <action name="actionEntering_password_dynamic">
    <property name="text">
     <string>Entering password dynamic</string>
+   </property>
+  </action>
+  <action name="db_action_open">
+   <property name="text">
+    <string>Open</string>
    </property>
   </action>
  </widget>
