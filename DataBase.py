@@ -188,3 +188,38 @@ class DataBase:
                 cur.execute("SELECT * FROM USER WHERE password=?", (password,))
                 rows = cur.fetchall()
         return rows
+
+    def select_speed(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM INPUT_PASSWORD_SPEED")
+            rows = cur.fetchall()
+        return rows
+
+    def select_input_password_dynamic(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM INPUT_PASSWORD_DYNAMIC")
+            rows = cur.fetchall()
+        return rows
+
+    def select_key_overlaying(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM KEY_OVERLAYING")
+            rows = cur.fetchall()
+        return rows
+
+    def select_key_hold(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM KEY_HOLD")
+            rows = cur.fetchall()
+        return rows
+
+    def select_vector(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM VECTOR_ELEMENT")
+            rows = cur.fetchall()
+        return rows
