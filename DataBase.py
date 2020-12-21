@@ -128,56 +128,63 @@ class DataBase:
             with self.__conn:
                 self.__conn.executemany(sql_query, data_vector)
 
-    def identify_user(self, user: User, vector: list):
-        user_in_db = self.isUserOk(user)
-        if user_in_db[0] == -1:
-            return False, "Wrong input data"
-        else:
-            if user_in_db[1]:
-                cur = self.__conn.cursor()
-                with self.__conn:
-                    cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[0],))
-                    rows = cur.fetchall()
-                    mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
-                    for i in range(len(vector)):
-                        if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) > mean_and_var_vector[1][i]:
-                            return False, "Wrong input data"
-                    return True, user_in_db[2], user_in_db[0]
-            else:
-                return False, "Wrong input data"
+    def identify_user(self, password, vector: list):
+        user_in_db = self.isUserOk(password)
+        user_id = -1
+        user_name = ""
+        var_dict = dict()
+        for i in range(len(user_in_db)):
+            cur = self.__conn.cursor()
+            with self.__conn:
+                cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[i][0],))
+                rows = cur.fetchall()
+            var_dict[(user_in_db[i][0], user_in_db[i][1])] = list()
+            mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
+            for j in range(len(vector)):
+                diff = pow(abs(mean_and_var_vector[0][j]) - abs(vector[j]), 2)
+                var_dict[(user_in_db[i][0], user_in_db[i][1])].append(diff)
+                if diff > mean_and_var_vector[1][j]:
+                    del var_dict[(user_in_db[i][0], user_in_db[i][1])]
+                    break
+        if len(var_dict):
+            mean_dict = MathLogic.calculate_mean_value(var_dict)
+            keys = list(mean_dict.keys())
+            vals = list(mean_dict.values())
+            min_val = min(vals)
+            user_id = keys[vals.index(min_val)][0]
+            user_name = keys[vals.index(min_val)][1]
+        return user_id, user_name
 
-    def verify_user(self, user: User, vector: list, id: int):
-        user_in_db = self.isUserOk(user, id)
-        if user_in_db[0] == -1:
-            return False, "Wrong input data"
-        else:
-            if user_in_db[1]:
-                cur = self.__conn.cursor()
-                with self.__conn:
-                    cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[0],))
-                    rows = cur.fetchall()
-                    mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
-                    for i in range(len(vector)):
-                        if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) > mean_and_var_vector[1][i]:
-                            return False, "Wrong input data"
-                    return True, user_in_db[2]
-            else:
+    def verify_user(self, password, vector: list, id: int):
+        user_in_db = self.isUserOk(password, id)
+        if len(user_in_db):
+            if user_in_db[0][0] == -1:
                 return False, "Wrong input data"
+            else:
+                if user_in_db[0][1]:
+                    cur = self.__conn.cursor()
+                    with self.__conn:
+                        cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[0][0],))
+                        rows = cur.fetchall()
+                        mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
+                        for i in range(len(vector)):
+                            if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) > mean_and_var_vector[1][i]:
+                                return False, "Wrong input data"
+                        return True, user_in_db[0][1]
+                else:
+                    return False, "Wrong input data"
+        return False, "Wrong input data"
 
-    def isUserOk(self, user: User, input_user_id=-1):
+    def isUserOk(self, password, input_user_id=-1):
         user_id = -1
         if input_user_id != -1:
             cur = self.__conn.cursor()
             with self.__conn:
-                cur.execute("SELECT * FROM USER WHERE id=? AND login=?", (input_user_id, user.login,))
+                cur.execute("SELECT * FROM USER WHERE id=? AND password=?", (input_user_id, password,))
                 rows = cur.fetchall()
         else:
             cur = self.__conn.cursor()
             with self.__conn:
-                cur.execute("SELECT * FROM USER WHERE login=?", (user.login,))
+                cur.execute("SELECT * FROM USER WHERE password=?", (password,))
                 rows = cur.fetchall()
-        if rows:
-            user_id = rows[0][0]
-            if user.password == rows[0][2]:
-                return user_id, True, user.login
-        return user_id, False
+        return rows

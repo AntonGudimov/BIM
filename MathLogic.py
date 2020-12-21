@@ -1,4 +1,6 @@
 import numpy as np
+
+
 class MathLogic:
 
     @staticmethod
@@ -14,4 +16,9 @@ class MathLogic:
             var_vector.append(np.var(vector[i]))
         return mean_vector, var_vector
 
-
+    @staticmethod
+    def calculate_mean_value(var_list: dict):
+        output = dict()
+        for key, val in var_list.items():
+            output[key] = np.mean(val)
+        return output

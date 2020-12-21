@@ -1,5 +1,5 @@
 from AuthFormUI import Ui_MainWindow as AuthFormUI
-from PyQt5.QtWidgets import QMainWindow, QLineEdit, QFileDialog, QTableWidgetItem, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QLineEdit, QFileDialog, QTableWidgetItem, QMessageBox, QInputDialog
 from PyQt5 import QtGui
 from KeyboardLogic import KeyboardLogic
 from FileLogic import FileLogic
@@ -44,7 +44,8 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.actionExit.triggered.connect(self.close)
         self.registrationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
         self.identificationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
-        self.verificationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
+        # self.verificationRadioButton.toggled.connect(self.set_login_and_password_lines_enabled)
+        self.verificationRadioButton.toggled.connect(self.show_dialog)
         self.password_info_label.setVisible(False)
         self.password_info_label_2.setVisible(False)
 
@@ -59,6 +60,7 @@ class AuthForm(QMainWindow, AuthFormUI):
         self.__is_overlaid = False  # Булевская переменная для детектирования наложения
         self.__db = DataBase('test.db')
         self.__user_id = -1
+        self.__input_id = -1
         self.__mean_pressed_released_diff = dict()
         self.username_line_edit.setDisabled(True)
         self.password_line_edit.setDisabled(True)
@@ -67,7 +69,7 @@ class AuthForm(QMainWindow, AuthFormUI):
         if a0.text():
             self.__pressed_key_time = time.time()
             QLineEdit.keyPressEvent(self.password_line_edit, a0)
-            if self.identificationRadioButton.isChecked() or  self.verificationRadioButton.isChecked or (
+            if self.identificationRadioButton.isChecked() or self.verificationRadioButton.isChecked or (
                     self.__keyboard_logic.user.login and self.__keyboard_logic.user.password \
                     and a0.text() in self.__keyboard_logic.user.password):
                 if self.__pressed_key != "":
@@ -85,7 +87,7 @@ class AuthForm(QMainWindow, AuthFormUI):
     def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
         if a0.text():
             self.__released_key_time = time.time()
-            if self.identificationRadioButton.isChecked() or  self.verificationRadioButton.isChecked or (
+            if self.identificationRadioButton.isChecked() or self.verificationRadioButton.isChecked or (
                     self.__keyboard_logic.user.login and self.__keyboard_logic.user.password and \
                     a0.text() in self.__keyboard_logic.user.password):
                 self.__released_key = a0.text()
@@ -146,8 +148,9 @@ class AuthForm(QMainWindow, AuthFormUI):
                         msg.setText('User {0} already exists'.format(self.__keyboard_logic.user.login))
                         msg.setWindowTitle("Warning msg")
                         msg.exec_()
-                        self.__keyboard_logic.user.login = None
-                        self.__keyboard_logic.user.password = None
+                        self.__keyboard_logic.user.login = ""
+                        self.__keyboard_logic.user.password = ""
+                        self.username_line_edit.clear()
                     else:
                         password_strength = self.__keyboard_logic.examine_password_for_complexity()
                         # Data base
@@ -176,25 +179,24 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
         elif self.identificationRadioButton.isChecked():
-            self.__keyboard_logic.user.login = self.username_line_edit.text()
             self.__keyboard_logic.user.password = self.password_line_edit.text()
             self.__vector = self.__keyboard_logic.form_vector()
             print(self.__vector)
-            result = self.__db.identify_user(self.__keyboard_logic.user, self.__vector)
-            if result[0]:
+            result = self.__db.identify_user(self.__keyboard_logic.user.password, self.__vector)
+            if result[0] != -1 and result[1] != "":
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
-                msg.setText('Hello {0}\nID = {1}'.format(result[1], result[2]))
+                msg.setText('Hello {0}\nID = {1}'.format(result[1], result[0]))
                 msg.setWindowTitle("User is found")
                 msg.exec_()
             else:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
-                msg.setText(result[1])
-                msg.setWindowTitle("User is not found")
+                msg.setText("User is not found")
+                msg.setWindowTitle("Error msg")
                 msg.exec_()
+            self.username_line_edit.clear()
             self.password_line_edit.clear()
-
             self.__keyboard_logic.pressed_keys_clear()
             self.__keyboard_logic.pressed_times_clear()
             self.__keyboard_logic.released_keys_clear()
@@ -203,24 +205,36 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
             self.__keyboard_logic.pressed_released_key_times_dict_clear()
+
+            if result[0] == -1 and result[1] == "":
+                if self.request_for_registration():
+                    self.registrationRadioButton.setChecked(True)
+                    self.username_line_edit.setEnabled(True)
+                    self.__keyboard_logic.user.login = ""
+                    self.__keyboard_logic.user.password = ""
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setText("Enter your username and password")
+                    msg.setWindowTitle("Info msg")
+                    msg.exec_()
         elif self.verificationRadioButton.isChecked():
-            self.__keyboard_logic.user.login = self.username_line_edit.text()
             self.__keyboard_logic.user.password = self.password_line_edit.text()
             self.__vector = self.__keyboard_logic.form_vector()
             print(self.__vector)
-            result = self.__db.verify_user(self.__keyboard_logic.user, self.__vector, 60)
+            result = self.__db.verify_user(self.__keyboard_logic.user.password, self.__vector, self.__input_id)
             if result[0]:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Information)
                 msg.setText('Hello {0}'.format(result[1]))
-                msg.setWindowTitle("User is found")
+                msg.setWindowTitle("Access granted")
                 msg.exec_()
             else:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Critical)
                 msg.setText(result[1])
-                msg.setWindowTitle("User is not found")
+                msg.setWindowTitle("Access denied")
                 msg.exec_()
+            self.username_line_edit.clear()
             self.password_line_edit.clear()
 
             self.__keyboard_logic.pressed_keys_clear()
@@ -231,6 +245,18 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_2 = 0
             self.__keyboard_logic.keyboard_statistic.key_overlay_count_3 = 0
             self.__keyboard_logic.pressed_released_key_times_dict_clear()
+
+            if not result[0]:
+                if self.request_for_registration():
+                    self.registrationRadioButton.setChecked(True)
+                    self.username_line_edit.setEnabled(True)
+                    self.__keyboard_logic.user.login = ""
+                    self.__keyboard_logic.user.password = ""
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setText("Enter your username and password")
+                    msg.setWindowTitle("Info msg")
+                    msg.exec_()
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
@@ -341,5 +367,41 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.password_info_label_2.setText(count_str)
 
     def set_login_and_password_lines_enabled(self):
-        self.username_line_edit.setEnabled(True)
+        self.username_line_edit.setDisabled(True)
         self.password_line_edit.setEnabled(True)
+
+    def show_dialog(self):
+        if self.verificationRadioButton.isChecked():
+            while True:
+                try:
+                    text, ok = QInputDialog.getText(self, 'Input Dialog',
+                                                    'Enter your ID:')
+
+                    if ok:
+                        self.__input_id = int(text)
+                        self.username_line_edit.setDisabled(True)
+                        self.password_line_edit.setEnabled(True)
+                        break
+                    else:
+                        self.registrationRadioButton.setChecked(False)
+                        break
+                except ValueError:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.setText("Invalid input\nInteger only")
+                    msg.setWindowTitle("Error msg")
+                    msg.exec_()
+
+    def request_for_registration(self):
+        if self.identificationRadioButton.isChecked() or self.verificationRadioButton.isChecked():
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Would you like to register?")
+            msg.setWindowTitle("Request for signing up")
+            yes_button = msg.addButton("Yes", QMessageBox.AcceptRole)
+            no_button = msg.addButton("No", QMessageBox.RejectRole)
+            msg.exec_()
+            if msg.clickedButton() == yes_button:
+                return True
+            elif msg.clickedButton() == no_button:
+                return False
