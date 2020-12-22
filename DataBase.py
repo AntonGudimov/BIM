@@ -132,32 +132,32 @@ class DataBase:
         user_in_db = self.isUserOk(password)
         user_id = -1
         user_name = ""
-        posibility_dict = dict()
+        possibility_dict = dict()
         for i in range(len(user_in_db)):
             cur = self.__conn.cursor()
             with self.__conn:
                 cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[i][0],))
                 rows = cur.fetchall()
-            posibility_dict[(user_in_db[i][0], user_in_db[i][1])] = 0
+            possibility_dict[(user_in_db[i][0], user_in_db[i][1])] = 0
             mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
             for j in range(len(vector)):
                 diff = pow(abs(mean_and_var_vector[0][j]) - abs(vector[j]), 2)
-                #posibility_dict[(user_in_db[i][0], user_in_db[i][1])].append(diff)
+                #possibility_dict[(user_in_db[i][0], user_in_db[i][1])].append(diff)
                 if diff <= mean_and_var_vector[1][j]:
-                    posibility_dict[(user_in_db[i][0], user_in_db[i][1])] += 1 / len(vector)
-                    #del posibility_dict[(user_in_db[i][0], user_in_db[i][1])]
+                    possibility_dict[(user_in_db[i][0], user_in_db[i][1])] += 1 / len(vector)
+                    #del possibility_dict[(user_in_db[i][0], user_in_db[i][1])]
                     #break
-        #if len(posibility_dict):
-            #mean_dict = MathLogic.calculate_mean_value(posibility_dict)
+        #if len(possibility_dict):
+            #mean_dict = MathLogic.calculate_mean_value(possibility_dict)
             #keys = list(mean_dict.keys())
             #vals = list(mean_dict.values())
             #min_val = min(vals)
             #user_id = keys[vals.index(min_val)][0]
             #user_name = keys[vals.index(min_val)][1]
 
-        if len(posibility_dict):
-            keys = list(posibility_dict.keys())
-            values = list(posibility_dict.values())
+        if len(possibility_dict):
+            keys = list(possibility_dict.keys())
+            values = list(possibility_dict.values())
             max_val = max(values)
             if max_val > 0.63:
                 user_id = keys[values.index(max_val)][0]
@@ -209,6 +209,13 @@ class DataBase:
             rows = cur.fetchall()
         return rows
 
+    def select_password_complexity(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM PASSWORD_COMPLEXITY")
+            rows = cur.fetchall()
+        return rows
+
     def select_speed(self):
         cur = self.__conn.cursor()
         with self.__conn:
@@ -243,3 +250,132 @@ class DataBase:
             cur.execute("SELECT * FROM VECTOR_ELEMENT")
             rows = cur.fetchall()
         return rows
+
+    def add_user(self, new_login, new_password):
+        sql = 'INSERT INTO USER (login, password) values (?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_login, new_password])
+        self.__conn.commit()
+
+    def add_password_complexity(self, new_complexity, new_user_id):
+        sql = 'INSERT INTO PASSWORD_COMPlEXITY (complexity, user_id) values (?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_complexity, new_user_id])
+        self.__conn.commit()
+
+    def add_input_password_speed(self, new_speed, new_day_time, new_user_id):
+        sql = 'INSERT INTO INPUT_PASSWORD_SPEED (speed, day_time, user_id) values (?, ?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_speed, new_day_time, new_user_id])
+        self.__conn.commit()
+
+    def add_input_password_dynamic(self, new_value, new_user_id):
+        sql = 'INSERT INTO INPUT_PASSWORD_DYNAMIC (value, user_id) values (?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_value, new_user_id])
+        self.__conn.commit()
+
+    def add_input_key_overlaying(self, new_type, new_user_id):
+        sql = 'INSERT INTO KEY_HOLD (type, user_id) values (?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_type, new_user_id])
+        self.__conn.commit()
+
+    def add_input_key_hold(self, new_key, new_time, new_user_id):
+        sql = 'INSERT INTO KEY_HOLD (key, time, user_id) values (?, ?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_key, new_time, new_user_id])
+        self.__conn.commit()
+
+    def add_vector(self, new_value, new_user_id):
+        sql = 'INSERT INTO VECTOR_ELEMENT (value, user_id) values (?, ?)'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_value, new_user_id])
+        self.__conn.commit()
+
+
+
+    def edit_user(self, id, new_login, new_password):
+        sql = 'UPDATE USER SET login=?, password=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_login, new_password, id])
+        self.__conn.commit()
+
+    def edit_password_complexity(self, id, new_complexity, new_user_id):
+        sql = 'UPDATE PASSWORD_COMPlEXITY SET complexity=?, user_id=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_complexity, new_user_id, id])
+        self.__conn.commit()
+
+    def edit_input_password_speed(self, id, new_speed, new_day_time, new_user_id):
+        sql = 'UPDATE INPUT_PASSWORD_SPEED SET speed=?, day_time=?, user_id=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_speed, new_day_time, new_user_id, id])
+        self.__conn.commit()
+
+    def edit_input_password_dynamic(self, id, new_value, new_user_id):
+        sql = 'UPDATE INPUT_PASSWORD_DYNAMIC SET value =?, user_id=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_value, new_user_id, id])
+        self.__conn.commit()
+
+    def edit_input_key_overlaying(self, id, new_type, new_user_id):
+        sql = 'UPDATE KEY_HOLD SET type =?, user_id=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_type, new_user_id, id])
+        self.__conn.commit()
+
+    def edit_input_key_hold(self, id, new_key, new_time, new_user_id):
+        sql = 'UPDATE KEY_HOLD SET key =?, time=?, user_id=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_key, new_time, new_user_id, id])
+        self.__conn.commit()
+
+    def edit_vector(self, id, new_value, new_user_id):
+        sql = 'UPDATE VECTOR_ELEMENT SET value =?, user_id=? WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [new_value, new_user_id, id])
+        self.__conn.commit()
+
+    def delete_user(self, id):
+        sql = 'DELETE FROM USER WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+
+    def delete_password_compexity(self, id):
+        sql = 'DELETE FROM PASSWORD_COMPLEXITY WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+
+    def delete_input_password_speed(self, id):
+        sql = 'DELETE FROM INPUT_PASSWORD_SPEED WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+
+    def delete_input_password_dynamic(self, id):
+        sql = 'DELETE FROM INPUT_PASSWORD_DYNAMIC WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+
+    def delete_key_overlaying(self, id):
+        sql = 'DELETE FROM KEY_OVERLAYING WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+
+    def delete_key_hold(self, id):
+        sql = 'DELETE FROM KEY_HOLD WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+
+    def delete_vector_element(self, id):
+        sql = 'DELETE FROM VECTOR_ELEMENT WHERE id=?'
+        cur = self.__conn.cursor()
+        cur.execute(sql, [id])
+        self.__conn.commit()
+

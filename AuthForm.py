@@ -454,18 +454,19 @@ class AuthForm(QMainWindow, AuthFormUI):
             self.password_line_edit.setEnabled(True)
 
     def logout(self):
-        self.__is_access_granted = False
-        self.registrationRadioButton.setEnabled(True)
-        self.identificationRadioButton.setEnabled(True)
-        self.verificationRadioButton.setEnabled(True)
+        if self.__is_access_granted:
+            self.__is_access_granted = False
+            self.registrationRadioButton.setEnabled(True)
+            self.identificationRadioButton.setEnabled(True)
+            self.verificationRadioButton.setEnabled(True)
 
-        self.__keyboard_logic.user.login = ""
-        self.__keyboard_logic.user.password = ""
+            self.__keyboard_logic.user.login = ""
+            self.__keyboard_logic.user.password = ""
 
-        self.username_line_edit.clear()
-        self.clear_form_data()
+            self.username_line_edit.clear()
+            self.clear_form_data()
 
-        self.registrationRadioButton.setChecked(True)
+            self.registrationRadioButton.setChecked(True)
 
     def clear_form_data(self):
         self.lcdNumber.display(0)

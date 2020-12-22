@@ -1,7 +1,7 @@
 from DB_FormUI import Ui_Form as DB_FormUI
 from PyQt5 import QtWidgets
 from DataBase import DataBase
-from PyQt5.QtWidgets import QTableWidgetItem
+from PyQt5.QtWidgets import QTableWidgetItem, QMessageBox
 
 
 class DB_Widget(QtWidgets.QWidget, DB_FormUI):
@@ -9,8 +9,11 @@ class DB_Widget(QtWidgets.QWidget, DB_FormUI):
         super().__init__(parent)
         self.setupUi(self)
         self.__db = None
-        self.inputComboBox.addItems(["User", "Input speed", "Input dynamic", "Key overlaying", "Key hold", "Vector"])
-        #self.getInfoButton.clicked.connect(self.get_users_info)
+        self.inputComboBox.addItems(["User", "Password complexity", "Input speed", "Input dynamic", "Key overlaying", "Key hold", "Vector"])
+        self.addRowButton.clicked.connect(self.add_row)
+        self.addButton.clicked.connect(self.add_value)
+        self.editButton.clicked.connect(self.edit_value)
+        self.deleteButton.clicked.connect(self.delete_value)
         self.inputComboBox.currentTextChanged.connect(self.get_users_info)
 
     def display_table(self):
@@ -33,6 +36,19 @@ class DB_Widget(QtWidgets.QWidget, DB_FormUI):
             for i in range(1, len(users) + 1):
                 for j in range(len(users[i - 1])):
                     self.infoTableWidget.setItem(i, j, QTableWidgetItem("{0}".format(users[i - 1][j])))
+
+        elif combo_box_value == "Password complexity":
+            self.infoTableWidget.clear()
+            password_complexity_info = self.__db.select_password_complexity()
+            self.infoTableWidget.setRowCount(len(password_complexity_info) + 1)
+            self.infoTableWidget.setColumnCount(len(password_complexity_info[0]))
+            self.infoTableWidget.setItem(0, 0, QTableWidgetItem("id"))
+            self.infoTableWidget.setItem(0, 1, QTableWidgetItem("complexity"))
+            self.infoTableWidget.setItem(0, 2, QTableWidgetItem("user_id"))
+
+            for i in range(1, len(password_complexity_info) + 1):
+                for j in range(len(password_complexity_info[i - 1])):
+                    self.infoTableWidget.setItem(i, j, QTableWidgetItem("{0}".format(password_complexity_info[i - 1][j])))
 
         elif combo_box_value == "Input speed":
             self.infoTableWidget.clear()
@@ -120,3 +136,126 @@ class DB_Widget(QtWidgets.QWidget, DB_FormUI):
         for i in range(1, len(users) + 1):
             for j in range(len(users[i - 1])):
                 self.infoTableWidget.setItem(i, j, QTableWidgetItem("{0}".format(users[i - 1][j])))
+
+    def edit_value(self):
+        try:
+            curr_table = self.inputComboBox.currentText()
+            if curr_table == "User":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.edit_user(id=edited_entity[0], new_login=edited_entity[1], new_password=edited_entity[2])
+
+            elif curr_table == "Password complexity":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.edit_password_complexity(id=edited_entity[0], new_complexity=edited_entity[1],
+                                                    new_user_id=edited_entity[2])
+            elif curr_table == "Input speed":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(4)]
+                self.__db.edit_input_password_speed(id=edited_entity[0], new_speed=edited_entity[1],
+                                                    new_day_time=edited_entity[2], new_user_id=edited_entity[3])
+            elif curr_table == "Input dynamic":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.edit_input_password_dynamic(id=edited_entity[0], new_value=edited_entity[1],
+                                                    new_user_id=edited_entity[2])
+            elif curr_table == "Key overlaying":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.edit_input_key_overlaying(id=edited_entity[0], new_type=edited_entity[1],
+                                                    new_user_id=edited_entity[2])
+            elif curr_table == "Key hold":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(4)]
+                self.__db.edit_input_key_hold(id=edited_entity[0], new_key=edited_entity[1],
+                                                    new_time=edited_entity[2], new_user_id=edited_entity[3])
+
+            elif curr_table == "Vector":
+                edited_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.edit_vector(id=edited_entity[0], new_value=edited_entity[1],
+                                              new_user_id=edited_entity[2])
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Database error")
+            msg.setWindowTitle("Error msg")
+            msg.exec_()
+            self.infoTableWidget.setRowCount(self.infoTableWidget.rowCount() - 1)
+        finally:
+            self.get_users_info()
+
+    def add_value(self):
+        try:
+            curr_table = self.inputComboBox.currentText()
+            if curr_table == "User":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.add_user(new_login=added_entity[1], new_password=added_entity[2])
+
+            elif curr_table == "Password complexity":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.add_password_complexity(new_complexity=added_entity[1], new_user_id=added_entity[2])
+            elif curr_table == "Input speed":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(4)]
+                self.__db.add_input_password_speed(new_speed=added_entity[1], new_day_time=added_entity[2],
+                                                   new_user_id=added_entity[3])
+            elif curr_table == "Input dynamic":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.add_input_password_dynamic(new_value=added_entity[1], new_user_id=added_entity[2])
+            elif curr_table == "Key overlaying":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.add_input_key_overlaying(new_type=added_entity[1], new_user_id=added_entity[2])
+            elif curr_table == "Key hold":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(4)]
+                self.__db.add_input_key_hold(new_key=added_entity[1], new_time=added_entity[2],
+                                             new_user_id=added_entity[3])
+
+            elif curr_table == "Vector":
+                added_entity = [self.infoTableWidget.selectedItems()[i].text() for i in range(3)]
+                self.__db.add_vector(new_value=added_entity[1], new_user_id=added_entity[2])
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Database error")
+            msg.setWindowTitle("Error msg")
+            msg.exec_()
+            self.infoTableWidget.setRowCount(self.infoTableWidget.rowCount() - 1)
+        finally:
+            self.get_users_info()
+
+    def delete_value(self):
+        try:
+            curr_table = self.inputComboBox.currentText()
+            selected_list = self.infoTableWidget.selectedItems()
+            if not len(selected_list):
+                self.infoTableWidget.setRowCount(self.infoTableWidget.rowCount() - 1)
+            else:
+                id_to_delete = selected_list[0].text()
+                if id_to_delete == "":
+                    self.infoTableWidget.setRowCount(self.infoTableWidget.rowCount() - 1)
+                if curr_table == "User":
+                    self.__db.delete_user(id_to_delete)
+
+                elif curr_table == "Password complexity":
+                    self.__db.delete_password_compexity(id_to_delete)
+
+                elif curr_table == "Input speed":
+                    self.__db.delete_input_password_speed(id_to_delete)
+
+                elif curr_table == "Input dynamic":
+                    self.__db.delete_input_password_dynamic(id_to_delete)
+
+                elif curr_table == "Key overlaying":
+                    self.__db.delete_key_overlaying(id_to_delete)
+
+                elif curr_table == "Key hold":
+                    self.__db.delete_key_hold(id_to_delete)
+
+                elif curr_table == "Vector":
+                    self.__db.delete_vector_element(id_to_delete)
+        except:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Database error")
+            msg.setWindowTitle("Error msg")
+            msg.exec_()
+            self.infoTableWidget.setRowCount(self.infoTableWidget.rowCount() - 1)
+        finally:
+            self.get_users_info()
+
+    def add_row(self):
+        self.infoTableWidget.setRowCount(self.infoTableWidget.rowCount() + 1)
