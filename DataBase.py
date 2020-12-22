@@ -132,27 +132,36 @@ class DataBase:
         user_in_db = self.isUserOk(password)
         user_id = -1
         user_name = ""
-        var_dict = dict()
+        posibility_dict = dict()
         for i in range(len(user_in_db)):
             cur = self.__conn.cursor()
             with self.__conn:
                 cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[i][0],))
                 rows = cur.fetchall()
-            var_dict[(user_in_db[i][0], user_in_db[i][1])] = list()
+            posibility_dict[(user_in_db[i][0], user_in_db[i][1])] = 0
             mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
             for j in range(len(vector)):
                 diff = pow(abs(mean_and_var_vector[0][j]) - abs(vector[j]), 2)
-                var_dict[(user_in_db[i][0], user_in_db[i][1])].append(diff)
-                if diff > mean_and_var_vector[1][j]:
-                    del var_dict[(user_in_db[i][0], user_in_db[i][1])]
-                    break
-        if len(var_dict):
-            mean_dict = MathLogic.calculate_mean_value(var_dict)
-            keys = list(mean_dict.keys())
-            vals = list(mean_dict.values())
-            min_val = min(vals)
-            user_id = keys[vals.index(min_val)][0]
-            user_name = keys[vals.index(min_val)][1]
+                #posibility_dict[(user_in_db[i][0], user_in_db[i][1])].append(diff)
+                if diff <= mean_and_var_vector[1][j]:
+                    posibility_dict[(user_in_db[i][0], user_in_db[i][1])] += 1 / len(vector)
+                    #del posibility_dict[(user_in_db[i][0], user_in_db[i][1])]
+                    #break
+        #if len(posibility_dict):
+            #mean_dict = MathLogic.calculate_mean_value(posibility_dict)
+            #keys = list(mean_dict.keys())
+            #vals = list(mean_dict.values())
+            #min_val = min(vals)
+            #user_id = keys[vals.index(min_val)][0]
+            #user_name = keys[vals.index(min_val)][1]
+
+        if len(posibility_dict):
+            keys = list(posibility_dict.keys())
+            values = list(posibility_dict.values())
+            max_val = max(values)
+            if max_val > 0.63:
+                user_id = keys[values.index(max_val)][0]
+                user_name = keys[values.index(max_val)][1]
         return user_id, user_name
 
     def verify_user(self, password, vector: list, id: int):
@@ -167,10 +176,14 @@ class DataBase:
                         cur.execute("SELECT value FROM VECTOR_ELEMENT WHERE user_id=?", (user_in_db[0][0],))
                         rows = cur.fetchall()
                         mean_and_var_vector = MathLogic.calculate_mean_and_var_vector_values(rows, len(vector))
+                        posibility = 0
                         for i in range(len(vector)):
-                            if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) > mean_and_var_vector[1][i]:
-                                return False, "Wrong input data"
-                        return True, user_in_db[0][1]
+                            if pow(abs(mean_and_var_vector[0][i]) - abs(vector[i]), 2) <= mean_and_var_vector[1][i]:
+                                posibility += 1 / len(vector)
+                        if posibility > 0.6:
+                            return True, user_in_db[0][1]
+                        else:
+                            return False, "Wrong input data"
                 else:
                     return False, "Wrong input data"
         return False, "Wrong input data"
@@ -187,6 +200,13 @@ class DataBase:
             with self.__conn:
                 cur.execute("SELECT * FROM USER WHERE password=?", (password,))
                 rows = cur.fetchall()
+        return rows
+
+    def select_users(self):
+        cur = self.__conn.cursor()
+        with self.__conn:
+            cur.execute("SELECT * FROM USER")
+            rows = cur.fetchall()
         return rows
 
     def select_speed(self):

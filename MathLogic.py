@@ -10,7 +10,7 @@ class MathLogic:
         var_vector = list()
         for i in range(vector_len):
             vector.append([])
-            for j in range(i, len(vector_list), 6):
+            for j in range(i, len(vector_list), vector_len):
                 vector[i].append(vector_list[j][0])
             mean_vector.append(np.mean(vector[i]))
             var_vector.append(np.var(vector[i]))
