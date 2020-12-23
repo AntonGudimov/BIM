@@ -367,6 +367,10 @@ class AuthForm(QMainWindow, AuthFormUI):
         mean_pressed_released_diff = self.__mean_pressed_released_diff
         self.__keyboard_logic.pressed_released_key_times_dict_clear()
         if not self.__needed_count - 1:
+            self.lcdNumber.setEnabled(True)
+            self.lcdNumber_2.setEnabled(True)
+            self.lcdNumber_3.setEnabled(True)
+            self.tableWidget.setEnabled(True)
             self.password_info_label_2.setVisible(False)
             self.output_groupBox.setEnabled(True)
 
